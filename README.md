@@ -1,74 +1,113 @@
-# 🧮 Vector Sum Benchmark Playground 
+# 🎮 Vector Summation Strategies in C++ – A Game Performance Playground
 
-Welcome to the chaos lab. This is a benchmarking sandbox for testing different vector summing strategies — from boring sequential to OpenMP wizardry.  
-The goal? To see how different implementations perform across datasets with different vector characteristics.
+This project explores **parallelization strategies for summing vectors**, a common operation in **real-time systems and game engines**.  
+Whether you’re dealing with physics vectors, AI steering data, or animation transforms — **how** you sum matters.
 
-❗ The `vector_sum.cpp` file was written by me, from scratch. I built and tested multiple methods for summing vectors, with and without multithreading.
+This repo benchmarks multiple threading approaches to summing large batches of vectors with different distribution patterns.
 
 ---
 
-## 📦 What's inside
+## 🕹️ Why It Matters in Games
 
-This project compares 5 different methods for summing vectors:
+Games constantly process massive amounts of spatial and numeric data:
+- **Movement systems**: summing forces or directions
+- **AI**: combining sensory inputs or weights
+- **Animation**: blending vectors across rigs or timelines
 
-- 🐢 `sequential_sum` – no threads, no surprises.
-- ⚡ `sum_per_vector_parallel` – parallelize across vectors (std::thread).
-- 🎲 `sum_with_shuffling` – reorder vectors before parallelizing.
-- 🔄 `omp_dynamic_schedule` – OpenMP with dynamic scheduling.
-- 🧱 `omp_static_schedule` – OpenMP with static scheduling.
+If your logic processes hundreds of thousands of vectors **per frame**, summing them the wrong way can blow your frame budget.
 
-Each method is benchmarked using different datasets:
-- Few very long vectors
-- Mixed (some big, some tiny)
-- Millions of short vectors
-- Useless tiny input that hates parallelism
+This project started as a deep dive into:
+- 🧵 Threading models (`std::thread`, OpenMP)
+- ⚖️ Load balancing
+- 🧠 Real-time performance insights for uneven data
 
-Results are printed in a clean **ASCII** table.
+---
 
-## 🧠 Why I made this
+## 🚀 Methods Compared
 
-I wanted to dig deep into **parallelization strategies** and see how real-world things behave — not just read a blog post.  
-Instead of just using OpenMP blindly, I wanted to **write it**, **run it**, **break it**, and **compare it**.
+Each method was implemented and benchmarked on datasets that simulate **real-world variances** you'd find in gameplay systems:
 
+| Method | Strategy |
+|--------|----------|
+| 🐢 `sequential_sum` | Baseline, single-threaded |
+| ⚡ `sum_per_vector_parallel` | One thread per vector (`std::thread`) |
+| 🎲 `sum_with_shuffling` | Shuffled data for better load balancing |
+| 🔄 `omp_dynamic_schedule` | OpenMP with dynamic scheduling |
+| 🧱 `omp_static_schedule` | OpenMP with fixed-size chunks |
 
-## 🧵 My part of the project
+---
 
-The file `vector_sum.cpp` (and `vector_sum.h`) is where I wrote the actual logic for the five summing methods.  
-It includes thread-safe execution, chunking logic, OpenMP directives, and careful use of `std::thread`.
+## 🧪 Dataset Types
 
-If you're here to look at **how vector summing can be written and compared in different threading models**, that's the file to read.
+| Dataset | Simulates... |
+|---------|--------------|
+| Few very large vectors | Heavy physics objects |
+| Mixed sizes | NPCs with dynamic behaviors |
+| Millions of tiny vectors | Particle systems or grass blades |
+| “Bad for parallelism” | Real-time edge cases (e.g. frame spikes) |
 
+Each method was stress-tested against these inputs. Results are displayed in a clear ASCII table (see below).
 
-## 🧪 How to run
+---
 
-> Make sure you have a C++ compiler with OpenMP support (like `g++` or `clang++`).
+## 📊 Sample Output
 
-```bash
-g++ -std=c++17 -fopenmp main.cpp -o benchmark
-./benchmark
-```
-
-## 📊 Sample output
-
+```text
 |                        | Sequential | Vector-level parallelism | Shuffling | Dynamic scheduling | Static scheduling |
 |------------------------|------------|---------------------------|-----------|---------------------|--------------------|
 | Few very long vectors  |    3.11 s  |          1.44 s          |   1.50 s  |        1.12 s       |       1.30 s       |
 | High variance in size  |    2.01 s  |          0.89 s          |   1.01 s  |        0.73 s       |       0.76 s       |
 | Many short vectors     |    0.89 s  |          0.42 s          |   0.49 s  |        0.31 s       |       0.33 s       |
 | Bad for parallelism    |    0.00 s  |          0.01 s          |   0.01 s  |        0.01 s       |       0.01 s       |
+```
 
-## 👀 Files overview
-| File |	Description|
-|------|-------------|
-| vector_sum.cpp |	⭐ My code. All summing methods live here.|
-| main.cpp	| Runs the tests, builds table output.|
-| executor.h	| Calls the summing methods, wraps them with timers.\
-| data_generator.h	| Builds different datasets.|
-| TextTable.h	| Simple ASCII table generator.|
+---
 
-## 🧩 License
-**MIT**. Use it, break it, remix it. Just don't gatekeep knowledge. Credit appreciated, but not required.
+## 📁 File Overview
+```bash
+├── vector_sum.cpp      # ⭐ All summing logic lives here
+├── vector_sum.h        # Interface for summing functions
+├── main.cpp            # Benchmark runner
+├── executor.h          # Timing and execution wrappers
+├── data_generator.h    # Builds different input datasets
+├── TextTable.h         # Pretty-print results to ASCII
+└── README.md           # This file
+```
+
+---
+
+## ⚙️ How to Run
+Requires a C++17 compiler with OpenMP support (g++, clang++)
+```bash
+g++ -std=c++17 -fopenmp main.cpp -o benchmark
+./benchmark
+```
+
+---
+
+## 🧠 Key Learnings (Game-Oriented)
+
+- 🧩 Not all parallelization strategies scale equally
+- ⚖️ Load distribution matters more than thread count
+- 🎯 Some operations need work stealing or dynamic chunking to stay real-time
+- 🧼 Clean threading code is testable and benchmarkable — not guesswork
+
+---
+
+## 🛠️ Potential Game-Engine Extensions
+
+- Replace synthetic vectors with physics simulation data
+- Integrate with Unity ECS or Unreal's task graph
+- Port to SIMD-accelerated instructions for per-frame summing
+- Visualize benchmark profiles with Perfetto or Tracy
+
+---
+
+## 🧷 License
+
+MIT — use, break, fork, or plug into your game engine.
 
 ## 👤 Author
-🦾 Crafted by Aleksandra Kenig (aka [yourpunk](https://github.com/yourpunk)).
-💌 Wanna collab or throw some feedback? You know where to find me.
+🦾 Crafted by Aleksandra Kenig (aka [yourpunk](https://github.com/yourpunk))- game developer exploring the guts of performance programming.
+
+### 💌 Want to nerd out about thread pools, physics engines or how bad memory layout can ruin your framerate? Ping me.
